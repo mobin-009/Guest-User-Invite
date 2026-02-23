@@ -285,15 +285,11 @@ export default function App() {
   async function checkAuthSession() {
     setAuthState((s) => ({ ...s, checking: true }));
     try {
-      const res = await fetch(`${API_ORIGIN}/.auth/me`, { credentials: "include" });
-      const data = await res.json().catch(() => []);
-      const principal = Array.isArray(data) && data.length > 0 ? data[0] : null;
-      const userName =
-        principal?.user_details ||
-        principal?.userId ||
-        principal?.claims?.find?.((c) => c.typ === "name")?.val ||
-        null;
-      setAuthState({ checking: false, signedIn: Boolean(principal), user: userName });
+      const res = await fetch(`${API_ORIGIN}/api/session`, { credentials: "include" });
+      const data = await res.json().catch(() => null);
+      const signedIn = Boolean(data?.signedIn);
+      const userName = data?.user || null;
+      setAuthState({ checking: false, signedIn, user: userName });
     } catch {
       setAuthState({ checking: false, signedIn: false, user: null });
     }
